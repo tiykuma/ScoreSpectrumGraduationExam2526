@@ -1,4 +1,4 @@
 streamlit
-pandas
+pandas<3.0.0
 plotly
-numpy
+numpy<2.0.0
