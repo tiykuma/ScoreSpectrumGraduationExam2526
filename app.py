@@ -23,10 +23,8 @@ TRANSLATIONS = {
         "title": "📊 Score Spectrum (Phổ Điểm) Visualizer",
         "subtitle": "Interactive student performance analytics & comparison for college entrance exam blocks (2025 vs 2026)",
         "data_import": "📂 Data Import",
-        "upload_csv": "Upload Student Scores (CSV)",
-        "success_loaded": "Successfully loaded uploaded CSV file!",
-        "loaded_default": "Using default Diem20252026.csv from workspace.",
-        "error_no_file": "Error: Diem20252026.csv not found. Please upload a CSV file via the sidebar.",
+        "loaded_default": "Using Diem20252026.csv dataset.",
+        "error_no_file": "Error: Diem20252026.csv not found in the workspace.",
         "viz_settings": "⚙️ Visualization Settings",
         "select_years": "**Select Years to Plot:**",
         "year_2026": "2026 (Current)",
@@ -103,10 +101,8 @@ TRANSLATIONS = {
         "title": "📊 Bộ Trực Quan Hóa Phổ Điểm",
         "subtitle": "Phân tích và so sánh phổ điểm thi đại học, dự đoán điểm chuẩn (2025 vs 2026)",
         "data_import": "📂 Nhập Dữ Liệu",
-        "upload_csv": "Tải lên Điểm Số Học Sinh (CSV)",
-        "success_loaded": "Tải thành công file CSV đã tải lên!",
-        "loaded_default": "Đã tự động tải file Diem20252026.csv từ thư mục làm việc.",
-        "error_no_file": "Lỗi: Không tìm thấy file Diem20252026.csv. Vui lòng tải lên file CSV ở thanh bên.",
+        "loaded_default": "Đang sử dụng tập dữ liệu Diem20252026.csv.",
+        "error_no_file": "Lỗi: Không tìm thấy file Diem20252026.csv trong thư mục làm việc.",
         "viz_settings": "⚙️ Cấu Hình Trực Quan Hóa",
         "select_years": "**Chọn Năm Hiển Thị:**",
         "year_2026": "2026 (Năm hiện tại)",
@@ -369,21 +365,13 @@ with col_title:
     st.markdown(f'<div class="subtitle">{t["subtitle"]}</div>', unsafe_allow_html=True)
 
 # ─────────────────────────────────────────────────────────────────────────────
-# DATA LOAD
+# DATA LOAD — always loads from bundled Diem20252026.csv (no user uploads)
 # ─────────────────────────────────────────────────────────────────────────────
-st.sidebar.markdown(f"### {t['data_import']}")
-uploaded_file = st.sidebar.file_uploader(t["upload_csv"], type=["csv"])
-
-if uploaded_file is not None:
-    dataset = load_dataset(uploaded_file)
-    st.sidebar.success(t["success_loaded"])
-else:
-    try:
-        dataset = load_dataset("Diem20252026.csv")
-        st.sidebar.info(t["loaded_default"])
-    except FileNotFoundError:
-        st.error(t["error_no_file"])
-        st.stop()
+try:
+    dataset = load_dataset("Diem20252026.csv")
+except FileNotFoundError:
+    st.error(t["error_no_file"])
+    st.stop()
 
 available_cols = dataset["columns"]
 total_rows = dataset["total_rows"]
