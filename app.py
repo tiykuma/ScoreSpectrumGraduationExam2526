@@ -245,7 +245,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # Helper function to load data in a memory-optimized way
-@st.cache_data
+@st.cache_resource
 def load_data(file_path_or_buffer):
     df = pd.read_csv(file_path_or_buffer)
     # Clean up column names (strip quotes, extra spaces, carriage returns)
