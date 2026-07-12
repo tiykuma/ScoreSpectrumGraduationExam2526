@@ -244,10 +244,20 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# Helper function to load data
+# Helper function to load data in a memory-optimized way
 @st.cache_data
 def load_data(file_path_or_buffer):
     df = pd.read_csv(file_path_or_buffer)
+    # Clean up column names (strip quotes, extra spaces, carriage returns)
+    df.columns = df.columns.str.strip().str.replace('"', '').str.replace("'", "").str.replace('\r', '').str.replace('\n', '')
+    # Drop Student_ID if exists to save RAM
+    if 'Student_ID' in df.columns:
+        df = df.drop(columns=['Student_ID'])
+    # Convert and cast to float32 (saving 50% RAM compared to float64)
+    for col in df.columns:
+        df[col] = pd.to_numeric(df[col], errors='coerce').astype(np.float32)
+        # Treat all scores smaller than 15 as trash (convert to NaN)
+        df.loc[df[col] < 15.0, col] = np.nan
     return df
 
 # Header Row with Language Picker in top right corner
@@ -284,18 +294,6 @@ else:
     except FileNotFoundError:
         st.error(t["error_no_file"])
         st.stop()
-
-# Clean up column names (strip quotes, extra spaces, carriage returns)
-df.columns = df.columns.str.strip().str.replace('"', '').str.replace("'", "").str.replace('\r', '').str.replace('\n', '')
-
-# Convert columns to numeric, converting non-numeric artifacts (like '.....') to NaN
-for col in df.columns:
-    df[col] = pd.to_numeric(df[col], errors='coerce')
-
-# Treat all scores smaller than 15 as trash (convert them to NaN so they are completely excluded)
-for col in df.columns:
-    if col != 'Student_ID':
-        df.loc[df[col] < 15.0, col] = np.nan
 
 # Check actual columns in dataframe to build filters dynamically
 available_cols = list(df.columns)
@@ -680,11 +678,15 @@ with calc_tab1:
             count_ge = 0
             pct_ge = 0.0
             
+        is_26 = (ds["year"] == "2026")
+        card_color = "#10B981" if is_26 else "#EF4444"
+        card_bg = "rgba(16, 185, 129, 0.05)" if is_26 else "rgba(239, 68, 68, 0.05)"
+        
         with calc_cols[idx % 4]:
             card_html = f"""
-            <div class="metric-card" style="border-left: 4px solid #10B981; background: rgba(16, 185, 129, 0.05);">
+            <div class="metric-card" style="border-left: 4px solid {card_color}; background: {card_bg};">
                 <div class="metric-label">{ds["name"]}</div>
-                <div class="metric-val" style="color: #10B981; font-size: 1.8rem; line-height: 2.2rem;">{pct_ge:.4f}%</div>
+                <div class="metric-val" style="color: {card_color}; font-size: 1.8rem; line-height: 2.2rem;">{pct_ge:.4f}%</div>
                 <div style="color: #E2E8F0; font-weight: 500; font-size: 0.95rem; margin-top: 0.2rem; margin-bottom: 0.4rem;">
                     {t["top_rank_pct_label"]}
                 </div>
@@ -728,11 +730,15 @@ with calc_tab2:
             exact_count = 0
             exact_pct = 0.0
             
+        is_26 = (ds["year"] == "2026")
+        card_color = "#10B981" if is_26 else "#EF4444"
+        card_bg = "rgba(16, 185, 129, 0.05)" if is_26 else "rgba(239, 68, 68, 0.05)"
+        
         with calc_cols2[idx % 4]:
             card_html = f"""
-            <div class="metric-card" style="border-left: 4px solid #3B82F6; background: rgba(59, 130, 246, 0.05);">
+            <div class="metric-card" style="border-left: 4px solid {card_color}; background: {card_bg};">
                 <div class="metric-label">{ds["name"]}</div>
-                <div class="metric-val" style="color: #3B82F6; font-size: 1.8rem; line-height: 2.2rem;">{threshold_score:.2f} pts</div>
+                <div class="metric-val" style="color: {card_color}; font-size: 1.8rem; line-height: 2.2rem;">{threshold_score:.2f} pts</div>
                 <div style="color: #E2E8F0; font-weight: 500; font-size: 0.95rem; margin-top: 0.2rem; margin-bottom: 0.4rem;">
                     {t["min_score_required"]}
                 </div>

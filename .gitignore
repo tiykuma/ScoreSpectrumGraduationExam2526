@@ -1,0 +1,35 @@
+# macOS system files
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon
+
+# Thumbnails
+._*
+
+# Files that might be created by macOS Finder/system
+.DocumentRevisions-V100
+.Spotlight-V100
+.Trashes
+VolumeIcon.icns
+.com.apple.timemachine.donotpresent
+
+# Directories potential workspaces
+.idea/
+.vscode/
+
+# Python artifacts
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+.venv/
+pip-log.txt
+.toast
+.cache
+.pytest_cache/
+.mypy_cache/
+.ipynb_checkpoints/
